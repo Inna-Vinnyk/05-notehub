@@ -1,7 +1,5 @@
 import axios from "axios";
-import { NoteCreatePayload, Note } from "../types/note";
-
-const myPostsKey = import.meta.env.VITE_NOTEHUB_TOKEN;
+import type { NoteCreatePayload, Note } from "../types/note";
 
 interface PostsHttpResponse {
   notes: Note[];
@@ -9,7 +7,9 @@ interface PostsHttpResponse {
 }
 
 const BASE_URL = "https://notehub-public.goit.study/api/notes";
-const headers = { Authorization: `Bearer ${myPostsKey}` };
+const headers = {
+  Authorization: `Bearer ${import.meta.env.VITE_NOTEHUB_TOKEN}`,
+};
 
 // fetchNotes виконує запит на сервер для отримання колекції нотатків
 export const fetchNotes = async (
