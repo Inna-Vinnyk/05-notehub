@@ -11,13 +11,13 @@ import { useDebouncedCallback } from "use-debounce";
 import Loader from "../Loader/Loader";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import SearchBox from "../SearchBox/SearchBox";
-import EditPostForm from "../EditPostForm/EditPostForm";
-import type { Note } from "../../types/note";
+// import EditPostForm from "../EditPostForm/EditPostForm";
+// import type { Note } from "../../types/note";
 
 function App() {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
-  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  // const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
   type ModalType = "create" | "edit" | null;
   const [isVisible, setIsVisible] = useState<ModalType>(null);
@@ -42,10 +42,10 @@ function App() {
   const handleOpenCreateModal = () => {
     setIsVisible("create");
   };
-  const handleOpenEditModal = (note: Note) => {
-    setSelectedNote(note);
-    setIsVisible("edit");
-  };
+  // const handleOpenEditModal = (note: Note) => {
+  //   setSelectedNote(note);
+  //   setIsVisible("edit");
+  // };
 
   const handleCloseModal = () => {
     setIsVisible(null);
@@ -68,20 +68,21 @@ function App() {
         </header>
         {isLoading && <Loader />}
         {isError && <ErrorMessage />}
-        {notes.length > 0 && isSuccess && (
-          <NoteList notes={notes} onEdit={handleOpenEditModal} />
-        )}
+        {notes.length > 0 && isSuccess && <NoteList notes={notes} />}
+        {isSuccess && notes.length === 0 && query !== "" && <ErrorMessage />}
       </div>
       {isVisible === "create" && (
         <Modal onClose={handleCloseModal}>
           <NoteForm onClose={handleCloseModal} />
         </Modal>
       )}
-      {isVisible === "edit" && selectedNote && (
+
+      {/* {isVisible === "edit" && selectedNote && (
         <Modal onClose={handleCloseModal}>
           <EditPostForm note={selectedNote} onClose={handleCloseModal} />
         </Modal>
-      )}
+      )} */}
+
       <Toaster position="top-right" />
     </>
   );

@@ -1,10 +1,10 @@
-import { ErrorMessage, Field, Form, Formik, type FormikHelpers } from "formik";
+import { ErrorMessage, Field, Form, Formik } from "formik";
 import css from "./EditPostForm.module.css";
 import * as Yup from "yup";
 import type { Note, NoteTag } from "../../types/note";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateNote } from "../../services/noteService";
-import toast from "react-hot-toast";
+// import { useMutation, useQueryClient } from "@tanstack/react-query";
+// import { updateNote } from "../../services/noteService";
+// import toast from "react-hot-toast";
 
 interface EditPostFormProps {
   note: Note;
@@ -22,36 +22,36 @@ export default function EditPostForm({ onClose, note }: EditPostFormProps) {
     content: note.content,
     tag: note.tag,
   };
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
 
-  const { mutate } = useMutation({
-    mutationFn: updateNote,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-      onClose();
-      toast.success("Note edited successfully!");
-    },
-    onError() {
-      toast.error("There was an error");
-    },
-  });
+  // const { mutate } = useMutation({
+  //   mutationFn: updateNote,
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: ["notes"] });
+  //     onClose();
+  //     toast.success("Note edited successfully!");
+  //   },
+  //   onError() {
+  //     toast.error("There was an error");
+  //   },
+  // });
 
-  const handleEdit = (
-    values: InitialValues,
-    actions: FormikHelpers<InitialValues>,
-  ) => {
-    mutate(
-      {
-        id: note.id,
-        noteData: values,
-      },
-      {
-        onSuccess() {
-          actions.resetForm();
-        },
-      },
-    );
-  };
+  // const handleEdit = (
+  //   values: InitialValues,
+  //   actions: FormikHelpers<InitialValues>,
+  // ) => {
+  //   mutate(
+  //     {
+  //       id: note.id,
+  //       noteData: values,
+  //     },
+  //     {
+  //       onSuccess() {
+  //         actions.resetForm();
+  //       },
+  //     },
+  //   );
+  // };
 
   const tags: NoteTag[] = ["Todo", "Work", "Personal", "Meeting", "Shopping"];
 
@@ -67,7 +67,7 @@ export default function EditPostForm({ onClose, note }: EditPostFormProps) {
   return (
     <>
       <Formik
-        onSubmit={handleEdit}
+        onSubmit={() => {}}
         initialValues={initialValues}
         validationSchema={validationSchema}
       >

@@ -6,10 +6,9 @@ import toast from "react-hot-toast";
 
 interface NoteListProps {
   notes: Note[];
-  onEdit: (note: Note) => void;
 }
 
-export default function NoteList({ notes, onEdit }: NoteListProps) {
+export default function NoteList({ notes }: NoteListProps) {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: deleteNote,
@@ -29,9 +28,7 @@ export default function NoteList({ notes, onEdit }: NoteListProps) {
             <p className={css.content}>{note.content}</p>
             <div className={css.footer}>
               <span className={css.tag}>{note.tag}</span>
-              <button className={css.edit} onClick={() => onEdit(note)}>
-                Edit
-              </button>
+              
               <button
                 className={css.button}
                 onClick={() =>

@@ -1,9 +1,9 @@
 import axios from "axios";
 import type { Note, NoteTag } from "../types/note";
-import toast from "react-hot-toast";
 
 const NOTEHUB_TOKEN = import.meta.env.VITE_NOTEHUB_TOKEN;
 const URL = "https://notehub-public.goit.study/api/notes";
+
 interface FetchNotesResponse {
   notes: Note[];
   totalPages: number;
@@ -22,23 +22,22 @@ export async function fetchNotes(
       Authorization: `Bearer ${NOTEHUB_TOKEN}`,
     },
   };
-  const { data } = await axios.request<FetchNotesResponse>(options);
 
-  if (data.notes.length === 0) {
-    toast.error("No matches for your query");
-  }
+  const { data } = await axios.request<FetchNotesResponse>(options);
 
   return {
     notes: data.notes,
     totalPages: data.totalPages,
   };
 }
+
 export async function deleteNote(id: string) {
   const { data } = await axios.delete<Note>(`${URL}/${id}`, {
     headers: {
       Authorization: `Bearer ${NOTEHUB_TOKEN}`,
     },
   });
+
   return data;
 }
 
@@ -54,19 +53,6 @@ export async function createNote(noteData: NoteData) {
       Authorization: `Bearer ${NOTEHUB_TOKEN}`,
     },
   });
-  return data;
-}
 
-interface UpdateNoteVariables {
-  id: string;
-  noteData: NoteData;
-}
-
-export async function updateNote({ id, noteData }: UpdateNoteVariables) {
-  const { data } = await axios.patch<Note>(`${URL}/${id}`, noteData, {
-    headers: {
-      Authorization: `Bearer ${NOTEHUB_TOKEN}`,
-    },
-  });
   return data;
 }
