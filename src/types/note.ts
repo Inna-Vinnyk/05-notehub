@@ -6,10 +6,5 @@ export interface Note {
   updatedAt: string;
   tag: NoteTag;
 }
-export type NoteTag = "Work" | "Personal" | "Meeting" | "Shopping" | "Todo";
 
-export interface NoteCreatePayload {
-  title: string;
-  content: string;
-  tag: NoteTag;
-}
+export type NoteTag = "Work" | "Personal" | "Meeting" | "Shopping" | "Todo";

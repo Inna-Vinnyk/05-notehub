@@ -1,44 +1,72 @@
 import axios from "axios";
-import type { NoteCreatePayload, Note } from "../types/note";
+import type { Note, NoteTag } from "../types/note";
+import toast from "react-hot-toast";
 
-interface PostsHttpResponse {
+const NOTEHUB_TOKEN = import.meta.env.VITE_NOTEHUB_TOKEN;
+const URL = "https://notehub-public.goit.study/api/notes";
+interface FetchNotesResponse {
   notes: Note[];
   totalPages: number;
 }
 
-const BASE_URL = "https://notehub-public.goit.study/api/notes";
-const headers = {
-  Authorization: `Bearer ${import.meta.env.VITE_NOTEHUB_TOKEN}`,
-};
+export async function fetchNotes(
+  query: string,
+  page: number = 1,
+  perPage: number = 12,
+) {
+  const options = {
+    method: "GET",
+    url: `${URL}`,
+    params: { search: query, page: page, perPage: perPage },
+    headers: {
+      Authorization: `Bearer ${NOTEHUB_TOKEN}`,
+    },
+  };
+  const { data } = await axios.request<FetchNotesResponse>(options);
 
-// fetchNotes виконує запит на сервер для отримання колекції нотатків
-export const fetchNotes = async (
-  page: number,
-  perPage: number,
-  search: string,
-): Promise<PostsHttpResponse> => {
-  const response = await axios.get<PostsHttpResponse>(BASE_URL, {
-    headers,
-    params: {
-      page,
-      perPage,
-      search,
+  if (data.notes.length === 0) {
+    toast.error("No matches for your query");
+  }
+
+  return {
+    notes: data.notes,
+    totalPages: data.totalPages,
+  };
+}
+export async function deleteNote(id: string) {
+  const { data } = await axios.delete<Note>(`${URL}/${id}`, {
+    headers: {
+      Authorization: `Bearer ${NOTEHUB_TOKEN}`,
     },
   });
-  return response.data;
-};
+  return data;
+}
 
-// createNote виконує запит для створення нової нотатки на сервері
+interface NoteData {
+  title: string;
+  content: string;
+  tag: NoteTag;
+}
 
-export const createNote = async (note: NoteCreatePayload): Promise<Note> => {
-  const res = await axios.post<Note>(BASE_URL, note, { headers });
-  return res.data;
-};
-
-// deleteNote виконує запит для видалення нотатки за заданим ідентифікатором
-export const deleteNote = async (id: string): Promise<Note> => {
-  const res = await axios.delete<Note>(`${BASE_URL}/${id}`, {
-    headers,
+export async function createNote(noteData: NoteData) {
+  const { data } = await axios.post<Note>(`${URL}`, noteData, {
+    headers: {
+      Authorization: `Bearer ${NOTEHUB_TOKEN}`,
+    },
   });
-  return res.data;
-};
+  return data;
+}
+
+interface UpdateNoteVariables {
+  id: string;
+  noteData: NoteData;
+}
+
+export async function updateNote({ id, noteData }: UpdateNoteVariables) {
+  const { data } = await axios.patch<Note>(`${URL}/${id}`, noteData, {
+    headers: {
+      Authorization: `Bearer ${NOTEHUB_TOKEN}`,
+    },
+  });
+  return data;
+}

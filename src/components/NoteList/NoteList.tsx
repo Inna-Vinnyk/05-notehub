@@ -1,48 +1,51 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Note } from "../../types/note";
+import type { Note } from "../../types/note";
 import css from "./NoteList.module.css";
 import { deleteNote } from "../../services/noteService";
+import toast from "react-hot-toast";
 
 interface NoteListProps {
-  items: Note[];
+  notes: Note[];
+  onEdit: (note: Note) => void;
 }
 
-export default function NoteList({ items }: NoteListProps) {
+export default function NoteList({ notes, onEdit }: NoteListProps) {
   const queryClient = useQueryClient();
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteNote(id),
-    onSuccess: () => {
-      // Перевантажуємо список нотаток після видалення
+  const { mutate } = useMutation({
+    mutationFn: deleteNote,
+    onSuccess() {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
     },
-    onError: (error) => {
-      console.error("Delete note error:", error);
+    onError() {
+      toast.error("There was an error");
     },
   });
-
-  const handleDelete = (id: string) => {
-    deleteMutation.mutate(id);
-  };
-
   return (
-    <ul className={css.list}>
-      {items.map((item) => (
-        <li className={css.listItem} key={item.id}>
-          <h2 className={css.title}>{item.title}</h2>
-          <p className={css.content}>{item.content}</p>
-          <div className={css.footer}>
-            <span className={css.tag}>{item.tag}</span>
-            <button
-              className={css.button}
-              onClick={() => handleDelete(item.id)}
-              disabled={deleteMutation.isPending}
-            >
-              {deleteMutation.isPending ? "Deleting..." : "Delete"}
-            </button>
-          </div>
-        </li>
-      ))}
-    </ul>
+    <>
+      <ul className={css.list}>
+        {notes.map((note) => (
+          <li className={css.listItem} key={note.id}>
+            <h2 className={css.title}>{note.title}</h2>
+            <p className={css.content}>{note.content}</p>
+            <div className={css.footer}>
+              <span className={css.tag}>{note.tag}</span>
+              <button className={css.edit} onClick={() => onEdit(note)}>
+                Edit
+              </button>
+              <button
+                className={css.button}
+                onClick={() =>
+                  mutate(note.id, {
+                    onSuccess: () => toast.success("Note deleted"),
+                  })
+                }
+              >
+                Delete
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }

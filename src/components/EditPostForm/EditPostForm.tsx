@@ -1,52 +1,56 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { NoteTag } from "../../types/note";
-import css from "./NoteForm.module.css";
-
 import { ErrorMessage, Field, Form, Formik, type FormikHelpers } from "formik";
-import { createNote } from "../../services/noteService";
-import toast from "react-hot-toast";
+import css from "./EditPostForm.module.css";
 import * as Yup from "yup";
+import type { Note, NoteTag } from "../../types/note";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { updateNote } from "../../services/noteService";
+import toast from "react-hot-toast";
 
+interface EditPostFormProps {
+  note: Note;
+  onClose: () => void;
+}
 interface InitialValues {
   title: string;
   content: string;
   tag: NoteTag;
 }
 
-const initialValues: InitialValues = {
-  title: "",
-  content: "",
-  tag: "Work",
-};
-
-interface NoteFormProps {
-  onClose: () => void;
-}
-
-export default function NoteForm({ onClose }: NoteFormProps) {
+export default function EditPostForm({ onClose, note }: EditPostFormProps) {
+  const initialValues: InitialValues = {
+    title: note.title,
+    content: note.content,
+    tag: note.tag,
+  };
   const queryClient = useQueryClient();
 
   const { mutate } = useMutation({
-    mutationFn: createNote,
-    onSuccess() {
+    mutationFn: updateNote,
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
       onClose();
-      toast.success("Note created");
+      toast.success("Note edited successfully!");
     },
     onError() {
       toast.error("There was an error");
     },
   });
 
-  const handleSubmit = async (
+  const handleEdit = (
     values: InitialValues,
     actions: FormikHelpers<InitialValues>,
   ) => {
-    mutate(values, {
-      onSuccess: () => {
-        actions.resetForm();
+    mutate(
+      {
+        id: note.id,
+        noteData: values,
       },
-    });
+      {
+        onSuccess() {
+          actions.resetForm();
+        },
+      },
+    );
   };
 
   const tags: NoteTag[] = ["Todo", "Work", "Personal", "Meeting", "Shopping"];
@@ -59,10 +63,11 @@ export default function NoteForm({ onClose }: NoteFormProps) {
     content: Yup.string().max(500, "Content is too long. Max 500 characters"),
     tag: Yup.string().oneOf(tags, "Invalid tag").required("Tag is required"),
   });
+
   return (
     <>
       <Formik
-        onSubmit={handleSubmit}
+        onSubmit={handleEdit}
         initialValues={initialValues}
         validationSchema={validationSchema}
       >
@@ -110,7 +115,7 @@ export default function NoteForm({ onClose }: NoteFormProps) {
               Cancel
             </button>
             <button type="submit" className={css.submitButton} disabled={false}>
-              Create note
+              Edit note
             </button>
           </div>
         </Form>
