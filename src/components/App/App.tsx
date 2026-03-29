@@ -1,3 +1,4 @@
+//
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { fetchNotes } from "../../services/noteService";
 import NoteList from "../NoteList/NoteList";
@@ -11,16 +12,11 @@ import { useDebouncedCallback } from "use-debounce";
 import Loader from "../Loader/Loader";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 import SearchBox from "../SearchBox/SearchBox";
-// import EditPostForm from "../EditPostForm/EditPostForm";
-// import type { Note } from "../../types/note";
 
 function App() {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
-  // const [selectedNote, setSelectedNote] = useState<Note | null>(null);
-
-  type ModalType = "create" | "edit" | null;
-  const [isVisible, setIsVisible] = useState<ModalType>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data, isLoading, isError, isSuccess } = useQuery({
     queryKey: ["notes", query, page],
@@ -39,17 +35,9 @@ function App() {
   const notes = data?.notes || [];
   const totalPages = data?.totalPages ?? 1;
 
-  const handleOpenCreateModal = () => {
-    setIsVisible("create");
-  };
-  // const handleOpenEditModal = (note: Note) => {
-  //   setSelectedNote(note);
-  //   setIsVisible("edit");
-  // };
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
 
-  const handleCloseModal = () => {
-    setIsVisible(null);
-  };
   return (
     <>
       <div className={css.app}>
@@ -62,26 +50,25 @@ function App() {
               onPageChange={setPage}
             />
           )}
-          <button className={css.button} onClick={handleOpenCreateModal}>
+          <button className={css.button} onClick={handleOpenModal}>
             Create note +
           </button>
         </header>
-        {isLoading && <Loader />}
-        {isError && <ErrorMessage />}
-        {notes.length > 0 && isSuccess && <NoteList notes={notes} />}
-        {isSuccess && notes.length === 0 && query !== "" && <ErrorMessage />}
+
+        <main>
+          {isLoading && <Loader />}
+
+          {(isError || (isSuccess && notes.length === 0)) && <ErrorMessage />}
+
+          {isSuccess && notes.length > 0 && <NoteList notes={notes} />}
+        </main>
       </div>
-      {isVisible === "create" && (
+
+      {isModalOpen && (
         <Modal onClose={handleCloseModal}>
           <NoteForm onClose={handleCloseModal} />
         </Modal>
       )}
-
-      {/* {isVisible === "edit" && selectedNote && (
-        <Modal onClose={handleCloseModal}>
-          <EditPostForm note={selectedNote} onClose={handleCloseModal} />
-        </Modal>
-      )} */}
 
       <Toaster position="top-right" />
     </>
